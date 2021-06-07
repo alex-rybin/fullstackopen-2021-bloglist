@@ -67,6 +67,23 @@ test('blogs added when sent by post request', async () => {
     expect(response.body[2].likes).toBe(998)
 })
 
+test('likes set to zero if not specified', async () => {
+    const newBlog = {
+        title: 'Shooting Stars',
+        author: 'Bag Raiders',
+        url: 'https://music.apple.com/ru/album/shooting-stars/1440810476?i=1440810921&l=en',
+    }
+
+    await api.post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+
+    expect(response.body[2].likes).toBe(0)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
