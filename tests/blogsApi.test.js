@@ -23,10 +23,9 @@ const initialBlogs = [
 beforeEach(async () => {
     await Blog.deleteMany({})
 
-    for (let blog of initialBlogs) {
-        let blogObject = new Blog(blog)
-        await blogObject.save()
-    }
+    const blogObjects = initialBlogs.map(blog => new Blog(blog))
+    const promiseArray = blogObjects.map(blog => blog.save())
+    await Promise.all(promiseArray)
 })
 
 test('blogs are returned as json', async () => {
@@ -82,6 +81,17 @@ test('likes set to zero if not specified', async () => {
     const response = await api.get('/api/blogs')
 
     expect(response.body[2].likes).toBe(0)
+})
+
+test('returns error 400 when title or author is missing', async () => {
+    const newBlog = {
+        url: 'https://music.apple.com/ru/album/one/1440666225?i=1440666375&l=en',
+        likes: 997,
+    }
+
+    await api.post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
 })
 
 afterAll(() => {
