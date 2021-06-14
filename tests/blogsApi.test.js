@@ -96,7 +96,6 @@ test('returns error 400 when title or author is missing', async () => {
 
 test('deletes object on delete request', async () => {
     const blog = await Blog.findOne({author: 'Till Lindemann'})
-    console.log(blog)
 
     await api.delete(`/api/blogs/${blog._id}`)
         .send()
@@ -105,6 +104,18 @@ test('deletes object on delete request', async () => {
     const blogAfterDeletion = await Blog.findOne({author: 'Till Lindemann'})
 
     expect(blogAfterDeletion).toBeNull()
+})
+
+test('updates object on patch request', async () => {
+    const blog = await Blog.findOne({author: 'Spiritbox'})
+
+    await api.patch(`/api/blogs/${blog._id}`)
+        .send({likes: 3500})
+        .expect(200)
+
+    const blogAfterDeletion = await Blog.findOne({author: 'Spiritbox'})
+
+    expect(blogAfterDeletion.likes).toBe(3500)
 })
 
 afterAll(() => {
