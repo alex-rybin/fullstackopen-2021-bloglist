@@ -94,6 +94,19 @@ test('returns error 400 when title or author is missing', async () => {
         .expect(400)
 })
 
+test('deletes object on delete request', async () => {
+    const blog = await Blog.findOne({author: 'Till Lindemann'})
+    console.log(blog)
+
+    await api.delete(`/api/blogs/${blog._id}`)
+        .send()
+        .expect(204)
+
+    const blogAfterDeletion = await Blog.findOne({author: 'Till Lindemann'})
+
+    expect(blogAfterDeletion).toBeNull()
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
