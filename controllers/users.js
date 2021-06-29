@@ -4,8 +4,17 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 
 usersRouter.post('/', async (req, res) => {
+    const password = req.body.password
+    const passLength = 3
+
+    if (password.length < passLength) {
+        return res.status(400).json({
+            error: `Password length must be ${passLength} symbols or greater`
+        })
+    }
+
     const saltRounds = 10
-    const passHash = await bcrypt.hash(req.body.password, saltRounds)
+    const passHash = await bcrypt.hash(password, saltRounds)
 
     const newUser = new User({
         username: req.body.username,
@@ -13,7 +22,15 @@ usersRouter.post('/', async (req, res) => {
         passHash,
     })
 
-    const savedUser = await newUser.save()
+    let savedUser
+
+    try {
+        savedUser = await newUser.save()
+    } catch (e) {
+        return res.status(400).json({
+            error: e.message
+        })
+    }
 
     res.json(savedUser)
 })
