@@ -20,6 +20,7 @@ usersRouter.post('/', async (req, res) => {
         username: req.body.username,
         name: req.body.name,
         passHash,
+        blogs: [],
     })
 
     let savedUser
@@ -36,7 +37,7 @@ usersRouter.post('/', async (req, res) => {
 })
 
 usersRouter.get('/', async (req, res) => {
-    const users = await User.find({})
+    const users = await User.find({}).populate('blogs')
 
     res.json(users)
 })
