@@ -12,22 +12,8 @@ blogsRouter.get('/', async (req, res) => {
 
 blogsRouter.post('/', async (req, res, next) => {
     const body = req.body
-    const token = req.token
 
-    let decodedToken
-
-    try {
-        decodedToken = jwt.verify(token, process.env.SECRET)
-    } catch (e) {
-        next(e)
-    }
-
-    if (!decodedToken.id) {
-        return res.status(401).json({
-            error: 'Token is missing or invalid'
-        })
-    }
-    const user = await User.findById(decodedToken.id)
+    const user = await User.findById(req.user)
     const blog = new Blog({...body, likes: body.likes || 0, user: user._id})
 
     try {
@@ -41,26 +27,10 @@ blogsRouter.post('/', async (req, res, next) => {
 })
 
 blogsRouter.delete('/:id', async (req, res, next) => {
-    const token = req.token
-
-    let decodedToken
-
-    try {
-        decodedToken = jwt.verify(token, process.env.SECRET)
-    } catch (e) {
-        return next(e)
-    }
-
-    if (!decodedToken.id) {
-        return res.status(401).json({
-            error: 'Token is missing or invalid'
-        })
-    }
-
     try {
         const blog = await Blog.findById(req.params.id)
 
-        if (blog.user.toString() !== String(decodedToken.id)) {
+        if (blog.user.toString() !== req.user) {
             return res.status(401).json({
                 error: 'Cannot delete blog of a different user'
             })
