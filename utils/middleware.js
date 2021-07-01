@@ -45,8 +45,10 @@ const userExtractor = (req, res, next) => {
     const token = req.token
     req.user = null
 
-    if (!req.token) {
-        return next()
+    if (!token) {
+        return res.status(401).json({
+            error: 'Token is missing or invalid'
+        })
     }
 
     let decodedToken
@@ -54,7 +56,9 @@ const userExtractor = (req, res, next) => {
     try {
         decodedToken = jwt.verify(token, process.env.SECRET)
     } catch (e) {
-        return next(e)
+        return res.status(401).json({
+            error: 'Token is missing or invalid'
+        })
     }
 
     if (!decodedToken.id) {
